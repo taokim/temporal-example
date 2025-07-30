@@ -7,12 +7,12 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 
-	"github.com/example/temporal-rag/internal/activities/ingestion"
-	"github.com/example/temporal-rag/internal/activities/preprocessing"
-	"github.com/example/temporal-rag/internal/activities/inference"
-	"github.com/example/temporal-rag/internal/activities/postprocessing"
-	"github.com/example/temporal-rag/internal/activities/storage"
-	"github.com/example/temporal-rag/internal/workflows"
+	"github.com/example/temporal-rag/activities/ingestion"
+	"github.com/example/temporal-rag/activities/preprocessing"
+	"github.com/example/temporal-rag/activities/inference"
+	"github.com/example/temporal-rag/activities/postprocessing"
+	"github.com/example/temporal-rag/activities/storage"
+	"github.com/example/temporal-rag/workflows"
 )
 
 const (

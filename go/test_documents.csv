@@ -1,0 +1,4 @@
+id,url,name,type,metadata
+doc1,https://example.com/document1.pdf,Document 1,pdf,"{""category"":""engineering"", ""priority"":""high""}"
+doc2,https://example.com/document2.pdf,Document 2,pdf,"{""category"":""financial"", ""year"":""2024""}"
+doc3,https://example.com/document3.pdf,Document 3,pdf,"{""category"":""marketing"", ""priority"":""medium""}"

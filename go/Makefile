@@ -10,10 +10,16 @@ all: deps fmt lint test build
 
 # Build binaries
 build:
-	@echo "Building worker..."
+	@echo "Building original worker..."
 	go build -o bin/worker ./cmd/worker
 	@echo "Building starter..."
 	go build -o bin/starter ./cmd/starter
+	@echo "Building resource-optimized components..."
+	go build -o bin/workflow-worker ./cmd/workflow-worker
+	go build -o bin/cpu-worker ./cmd/cpu-worker
+	go build -o bin/gpu-worker ./cmd/gpu-worker
+	go build -o bin/io-worker ./cmd/io-worker
+	go build -o bin/resource-optimized-starter ./cmd/resource-optimized-starter
 	@echo "Build complete!"
 
 # Run tests
@@ -38,6 +44,28 @@ run-worker: build
 run-starter: build
 	@echo "Starting workflow..."
 	./bin/starter --csv-file ../testdata/documents.csv
+
+# Run resource-optimized workers
+run-workflow-worker: build
+	@echo "Starting Workflow Worker..."
+	./bin/workflow-worker
+
+run-cpu-worker: build
+	@echo "Starting CPU Worker..."
+	./bin/cpu-worker
+
+run-gpu-worker: build
+	@echo "Starting GPU Worker..."
+	GPU_COUNT=2 ./bin/gpu-worker
+
+run-io-worker: build
+	@echo "Starting IO Worker..."
+	./bin/io-worker
+
+# Run resource-optimized starter
+run-optimized-starter: build
+	@echo "Starting resource-optimized workflow..."
+	./bin/resource-optimized-starter --csv-file ../testdata/documents.csv
 
 # Docker commands
 docker-up:

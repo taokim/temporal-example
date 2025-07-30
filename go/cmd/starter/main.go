@@ -12,7 +12,7 @@ import (
 	"go.temporal.io/sdk/client"
 
 	"github.com/example/temporal-rag/internal/models"
-	"github.com/example/temporal-rag/internal/workflows"
+	"github.com/example/temporal-rag/workflows"
 )
 
 const (
