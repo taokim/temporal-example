@@ -134,6 +134,83 @@ task runStarter(type: JavaExec) {
     ]
 }
 
+// Run resource-optimized starter
+task runOptimizedStarter(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.ResourceOptimizedStarter'
+    
+    // Default arguments
+    args = [
+        '--csv-file', '../testdata/documents.csv',
+        '--batch-size', '5',
+        '--timeout', '60'
+    ]
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233'
+    ]
+}
+
+// Run workflow worker (orchestrates workflows only)
+task runWorkflowWorker(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.workers.WorkflowWorker'
+    jvmArgs = ['-Xmx1g', '-Xms256m', '-Dspring.profiles.active=workflow-worker']
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233',
+        'SPRING_PROFILES_ACTIVE': 'workflow-worker'
+    ]
+}
+
+// Run CPU-bound activity worker
+task runCPUWorker(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.workers.CPUWorker'
+    jvmArgs = ['-Xmx2g', '-Xms512m', '-Dspring.profiles.active=cpu-worker']
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233',
+        'SPRING_PROFILES_ACTIVE': 'cpu-worker'
+    ]
+}
+
+// Run GPU-bound activity worker
+task runGPUWorker(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.workers.GPUWorker'
+    jvmArgs = ['-Xmx4g', '-Xms1g', '-Dspring.profiles.active=gpu-worker']
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233',
+        'SPRING_PROFILES_ACTIVE': 'gpu-worker',
+        'GPU_COUNT': '2'  // Simulate 2 GPUs available
+    ]
+}
+
+// Run IO-bound activity worker
+task runIOWorker(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.workers.IOWorker'
+    jvmArgs = ['-Xmx1g', '-Xms256m', '-Dspring.profiles.active=io-worker']
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233',
+        'SPRING_PROFILES_ACTIVE': 'io-worker',
+        'S3_ENDPOINT': 'http://localhost:9000',
+        'S3_ACCESS_KEY': 'minioadmin',
+        'S3_SECRET_KEY': 'minioadmin',
+        'CHROMADB_URL': 'http://localhost:8010',
+        'REDIS_HOST': 'localhost',
+        'REDIS_PORT': '6379'
+    ]
+}
+
 // Integration test task
 task integrationTest(type: Test) {
     useJUnitPlatform {

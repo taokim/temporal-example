@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PipelineResult {
+    private String workflowId;
     private int totalProcessed;
     private int successCount;
     private int errorCount;
@@ -20,4 +21,23 @@ public class PipelineResult {
     private List<String> vectorStorageIDs;
     private List<String> s3ObjectKeys;
     private List<ProcessingError> errors;
+    
+    // Additional fields for resource-optimized workflow
+    private int totalDocuments;
+    private int successfulDocuments;
+    private int failedDocuments;
+    private List<DocumentResult> results;
+    
+    // Compatibility methods
+    public int getTotalDocuments() {
+        return totalDocuments > 0 ? totalDocuments : totalProcessed;
+    }
+    
+    public int getSuccessfulDocuments() {
+        return successfulDocuments > 0 ? successfulDocuments : successCount;
+    }
+    
+    public int getFailedDocuments() {
+        return failedDocuments > 0 ? failedDocuments : errorCount;
+    }
 }

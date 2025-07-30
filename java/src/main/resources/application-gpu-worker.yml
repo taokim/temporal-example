@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/document_metadata
+    username: docuser
+    password: docpass
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+temporal:
+  service:
+    target: 127.0.0.1:7233
+  namespace: default
+
+# GPU-specific settings
+gpu:
+  memory-reservation: 0.8
+  batch-size: 32
+  device-count: ${GPU_COUNT:2}
+
+logging:
+  level:
+    com.example: INFO
+    io.temporal: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [GPU-WORKER] - %msg%n"

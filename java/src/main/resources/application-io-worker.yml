@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/document_metadata
+    username: docuser
+    password: docpass
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  redis:
+    host: localhost
+    port: 6379
+
+temporal:
+  service:
+    target: 127.0.0.1:7233
+  namespace: default
+
+# IO-specific settings
+s3:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: document-storage
+
+chromadb:
+  url: http://localhost:8010
+  collection: document-embeddings
+
+# RestTemplate configuration for external APIs
+rest:
+  connection-timeout: 5000
+  read-timeout: 30000
+  max-connections: 200
+
+logging:
+  level:
+    com.example: INFO
+    io.temporal: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [IO-WORKER] - %msg%n"
