@@ -16,15 +16,41 @@ public class DocumentPipelineStarter {
     private static final String TASK_QUEUE = "document-pipeline-queue";
     
     public static void main(String[] args) {
-        // Validate arguments
-        if (args.length < 1) {
-            System.err.println("Usage: DocumentPipelineStarter <csv-path> [batch-size] [max-size-mb]");
-            System.exit(1);
-        }
+        // Parse command line arguments
+        String csvPath = "../testdata/documents.csv";
+        String s3Bucket = "documents";
+        String vectorCollection = "documents";
+        String embeddingModel = "text-embedding-3-small";
+        String summaryModel = "gpt-3.5-turbo";
+        int batchSize = 10;
+        int maxSizeMB = 50;
         
-        String csvPath = args[0];
-        int batchSize = args.length > 1 ? Integer.parseInt(args[1]) : 10;
-        int maxSizeMB = args.length > 2 ? Integer.parseInt(args[2]) : 50;
+        // Parse flags
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--csv-file":
+                    csvPath = args[++i];
+                    break;
+                case "--s3-bucket":
+                    s3Bucket = args[++i];
+                    break;
+                case "--vector-db-collection":
+                    vectorCollection = args[++i];
+                    break;
+                case "--embedding-model":
+                    embeddingModel = args[++i];
+                    break;
+                case "--summary-model":
+                    summaryModel = args[++i];
+                    break;
+                case "--batch-size":
+                    batchSize = Integer.parseInt(args[++i]);
+                    break;
+                case "--max-size-mb":
+                    maxSizeMB = Integer.parseInt(args[++i]);
+                    break;
+            }
+        }
         
         // Create workflow client
         WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
@@ -57,13 +83,13 @@ public class DocumentPipelineStarter {
                         .build())
                 .modelConfig(ModelConfig.builder()
                         .generateEmbeddings(true)
-                        .embeddingModel("text-embedding-ada-002")
+                        .embeddingModel(embeddingModel)
                         .generateSummary(true)
-                        .summaryModel("gpt-3.5-turbo")
+                        .summaryModel(summaryModel)
                         .extractEntities(true)
                         .build())
-                .chromaCollection("temporal-rag-documents")
-                .s3Bucket("document-storage")
+                .chromaCollection(vectorCollection)
+                .s3Bucket(s3Bucket)
                 .build();
         
         log.info("Starting workflow: {}", workflowId);
