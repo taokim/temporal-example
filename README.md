@@ -2,6 +2,8 @@
 
 A production-ready document processing pipeline built with Temporal workflow orchestration. This system demonstrates how to build scalable AI/ML pipelines for document ingestion, processing, and RAG (Retrieval-Augmented Generation) preparation.
 
+**Multi-Language Support**: Complete implementations in Go, Java, and Python with two workflow patterns: basic pipeline and resource-optimized execution.
+
 ## Architecture Overview
 
 The pipeline implements a 5-stage document processing workflow:
@@ -26,8 +28,11 @@ See [Why Temporal for Vector Embeddings](docs/temporal-vector-embeddings.md) for
 
 ## Features
 
+- **Multi-Language Support**: Complete implementations in Go, Java, and Python
+- **Two Workflow Patterns**: 
+  - **Basic Pipeline**: Single worker handling all activities
+  - **Resource-Optimized**: Separate workers for CPU, GPU, and IO-bound activities
 - **Scalable Architecture**: Worker-based processing with horizontal scaling
-- **Multi-Language Support**: Implementations in both Go (high performance) and Java (enterprise-ready)
 - **Fault Tolerance**: Automatic retries, state persistence, and graceful error handling
 - **Observability**: Comprehensive metrics, logging, and workflow visualization
 - **Local Development**: Complete Docker Compose environment with mock services
@@ -42,6 +47,7 @@ See [Why Temporal for Vector Embeddings](docs/temporal-vector-embeddings.md) for
 - Docker and Docker Compose
 - Go 1.21+ (for Go implementation)
 - Java 17+ and Gradle (for Java implementation)
+- Python 3.11+ and pip (for Python implementation)
 - Make (optional, for convenience commands)
 
 ### 1. Start the Infrastructure
@@ -87,30 +93,114 @@ cd java
 ./gradlew runStarter
 ```
 
+### 4. Run the Python Implementation
+
+```bash
+cd python
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the worker
+make run-worker
+
+# In another terminal, start a workflow
+make run-starter
+```
+
 ## Project Structure
 
 ```
 temporal-example/
 ├── go/                      # Go implementation
 │   ├── cmd/                 # Main applications
-│   │   ├── worker/         # Worker process
-│   │   └── starter/        # Workflow starter
-│   ├── internal/           # Internal packages
-│   │   ├── activities/     # Activity implementations
-│   │   ├── workflows/      # Workflow definitions
-│   │   └── models/         # Data models
+│   │   ├── worker/         # Basic worker process
+│   │   ├── starter/        # Basic workflow starter
+│   │   ├── cpu-worker/     # CPU-optimized worker
+│   │   ├── gpu-worker/     # GPU-optimized worker
+│   │   ├── io-worker/      # IO-optimized worker
+│   │   ├── workflow-worker/ # Workflow-only worker
+│   │   └── resource-optimized-starter/ # Resource-optimized starter
+│   ├── activities/         # Activity implementations
+│   │   ├── cpu/           # CPU-bound activities  
+│   │   ├── gpu/           # GPU-bound activities
+│   │   └── io/            # IO-bound activities
+│   ├── workflows/          # Workflow definitions
+│   ├── internal/models/    # Data models
 │   └── Makefile           # Build and run commands
 ├── java/                    # Java implementation
-│   ├── src/main/java/      # Java source code
+│   ├── src/main/java/com/example/
 │   │   ├── activities/     # Activity implementations
+│   │   │   ├── cpu/       # CPU-bound activities
+│   │   │   ├── gpu/       # GPU-bound activities
+│   │   │   └── io/        # IO-bound activities
 │   │   ├── workflows/      # Workflow definitions
+│   │   ├── workers/        # Worker configurations
 │   │   └── models/         # Data models
 │   └── build.gradle        # Gradle build configuration
+├── python/                  # Python implementation
+│   ├── activities/         # Activity implementations
+│   │   ├── cpu/           # CPU-bound activities
+│   │   ├── gpu/           # GPU-bound activities
+│   │   └── io/            # IO-bound activities
+│   ├── workflows/          # Workflow definitions
+│   ├── workers/            # Worker processes
+│   ├── requirements.txt    # Python dependencies
+│   └── Makefile           # Build and run commands
 ├── docker-compose.yml       # Local development environment
 ├── testdata/               # Sample test data
 ├── init-scripts/           # Database initialization
 └── docs/                   # Additional documentation
 ```
+
+## Workflow Examples
+
+This project demonstrates two different workflow patterns:
+
+### 1. Basic Document Pipeline
+
+A traditional single-worker approach where one worker handles all activity types:
+
+- **Single Task Queue**: `document-processing`
+- **Worker Configuration**: Handles all activities (CPU, GPU, IO-bound)
+- **Use Case**: Simple setups, small to medium workloads
+- **Files**: 
+  - Go: `workflows/document_pipeline.go`
+  - Java: `workflows/DocumentPipelineWorkflow.java`
+  - Python: `workflows/document_pipeline.py`
+
+### 2. Resource-Optimized Pipeline
+
+Advanced multi-worker approach with resource-specific task queues:
+
+- **Task Queues**:
+  - `document-pipeline-queue`: Workflow orchestration only
+  - `cpu-bound-queue`: Text processing, validation, compression
+  - `gpu-bound-queue`: ML inference, embeddings, OCR
+  - `io-bound-queue`: Downloads, uploads, database operations
+- **Worker Specialization**: Each worker optimized for specific resource types
+- **Use Case**: High-throughput, production workloads, resource optimization
+- **Files**:
+  - Go: `workflows/resource_optimized.go`
+  - Java: `workflows/ResourceOptimizedWorkflow.java`
+  - Python: `workflows/resource_optimized.py`
+
+### Choosing the Right Pattern
+
+| Factor | Basic Pipeline | Resource-Optimized |
+|--------|---------------|-------------------|
+| Setup Complexity | Simple (1 worker) | Complex (4 workers) |
+| Resource Efficiency | Mixed workload | Optimized per type |
+| Scalability | Vertical scaling | Horizontal scaling |
+| Best For | Development, small scale | Production, high scale |
+
+## Implementation Guides
+
+Each language implementation has its own detailed setup guide:
+
+- **Go**: [go/README.md](go/README.md) - High-performance implementation
+- **Java**: [java/README.md](java/README.md) - Enterprise-ready implementation  
+- **Python**: [python/README.md](python/README.md) - Rapid development implementation
 
 ## Core Services
 
@@ -213,13 +303,14 @@ java -jar build/libs/temporal-rag.jar \
 
 ## Performance Comparison
 
-| Aspect | Go | Java |
-|--------|----|---------|
-| Throughput | 15,000+ workflows/sec | 10,000+ workflows/sec |
-| Memory Usage | ~100MB | ~500MB |
-| Startup Time | <1 second | 5-10 seconds |
-| GC Pause | Minimal | Configurable |
-| Best For | High throughput, microservices | Enterprise integration, complex logic |
+| Aspect | Go | Java | Python |
+|--------|----|---------|---------|
+| Throughput | 15,000+ workflows/sec | 10,000+ workflows/sec | 5,000+ workflows/sec |
+| Memory Usage | ~100MB | ~500MB | ~200MB |
+| Startup Time | <1 second | 5-10 seconds | 2-3 seconds |
+| GC Pause | Minimal | Configurable | Automatic |
+| Development Speed | Fast | Moderate | Very Fast |
+| Best For | High throughput, microservices | Enterprise integration, complex logic | Rapid prototyping, AI/ML |
 
 ## Production Deployment
 
@@ -306,10 +397,49 @@ MIT License - see LICENSE file for details
 - MinIO for S3-compatible storage
 - OpenAI for embedding models
 
-## Resources
+## Resource-Optimized Execution
 
-- [Temporal Documentation](https://docs.temporal.io)
-- [ChromaDB Documentation](https://docs.trychroma.com)
-- [MinIO Documentation](https://docs.min.io)
-- [Project Architecture](docs/workflow-orchestration-comparison.md)
-- [AI Pipeline Design](docs/ai-pipeline-implementation.md)
+All three implementations support resource-optimized execution. See the detailed implementation guides for setup instructions:
+
+- **Go**: [go/README.md#resource-optimized-execution](go/README.md#resource-optimized-execution)
+- **Java**: [java/README.md#resource-optimized-execution](java/README.md#resource-optimized-execution)  
+- **Python**: [python/README.md#resource-optimized-execution](python/README.md#resource-optimized-execution)
+
+### Benefits of Resource Optimization
+
+1. **Better Resource Utilization**: Each worker type is optimized for its workload
+2. **Improved Scalability**: Scale workers independently based on bottlenecks
+3. **Reduced Contention**: Different resource types don't compete
+4. **Flexible Deployment**: Deploy workers on appropriate hardware
+
+### Task Queue Architecture
+
+- **document-pipeline-queue**: Workflow orchestration only
+- **cpu-bound-queue**: CPU-intensive activities (text processing, validation)
+- **gpu-bound-queue**: GPU-accelerated activities (ML inference, embeddings)
+- **io-bound-queue**: IO-intensive activities (downloads, uploads, DB operations)
+
+## Documentation
+
+### Implementation Guides
+
+- **[Go Implementation Guide](go/README.md)** - High-performance implementation with detailed setup instructions
+- **[Java Implementation Guide](java/README.md)** - Enterprise-ready implementation with Spring Boot integration
+- **[Python Implementation Guide](python/README.md)** - Rapid development implementation with AI/ML focus
+
+### Architecture Documentation
+
+- **[Resource-Optimized Execution Guide](docs/resource-optimized-execution-guide.md)** - Complete guide to resource-specific task queues
+- **[Workflow Orchestration Comparison](docs/workflow-orchestration-comparison.md)** - Temporal vs other orchestration approaches
+- **[AI Pipeline Implementation](docs/ai-workflow-implementation.md)** - AI/ML pipeline patterns and best practices
+
+### Setup and Operations
+
+- **[CPU vs GPU Implementation Summary](docs/cpu-gpu-io-implementation-summary.md)** - Resource optimization strategies
+- **[Python Workflow Implementation](docs/python-workflow-implementation.md)** - Python-specific patterns and optimizations
+
+### External Resources
+
+- [Temporal Documentation](https://docs.temporal.io) - Official Temporal documentation
+- [ChromaDB Documentation](https://docs.trychroma.com) - Vector database documentation
+- [MinIO Documentation](https://docs.min.io) - S3-compatible storage documentation
