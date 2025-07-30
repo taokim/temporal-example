@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  java-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: temporal-java-worker
+    environment:
+      # Spring configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/temporal_rag
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      
+      # S3/MinIO configuration
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      
+      # ChromaDB configuration
+      CHROMADB_URL: http://chromadb:8000
+      
+      # LLM service configuration
+      LLM_SERVICE_URL: http://mock-llm:8081
+      LLM_USE_MOCK: "true"
+      
+      # Temporal configuration
+      TEMPORAL_SERVICE_TARGET: temporal:7233
+      
+      # JVM options
+      JAVA_OPTS: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:InitialRAMPercentage=50.0
+        -XX:+UseG1GC
+        -XX:+ExitOnOutOfMemoryError
+        -Dspring.profiles.active=docker
+    
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    
+    networks:
+      - temporal-network
+    
+    depends_on:
+      - temporal
+      - postgres
+      - minio
+      - chromadb
+      - mock-llm
+    
+    restart: unless-stopped
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+# Use external network from main docker-compose
+networks:
+  temporal-network:
+    external: true

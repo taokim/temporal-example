@@ -1,0 +1,185 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.example'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // Temporal
+    implementation 'io.temporal:temporal-sdk:1.22.3'
+    implementation 'io.temporal:temporal-spring-boot-starter-alpha:1.22.3'
+    
+    // AI/ML Libraries - OpenAI
+    implementation 'com.theokanning.openai-gpt3-java:service:0.18.2'
+    
+    // Document Processing
+    implementation 'org.apache.pdfbox:pdfbox:3.0.0'
+    implementation 'org.apache.poi:poi-ooxml:5.2.4'
+    implementation 'org.apache.poi:poi-scratchpad:5.2.4'
+    implementation 'org.jsoup:jsoup:1.17.1'
+    implementation 'org.apache.tika:tika-core:2.9.1'
+    implementation 'org.apache.tika:tika-parsers-standard-package:2.9.1'
+    
+    // CSV Processing
+    implementation 'com.opencsv:opencsv:5.8'
+    
+    // AWS SDK v1 for S3 (for compatibility with existing code)
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
+    
+    // PostgreSQL
+    implementation 'org.postgresql:postgresql:42.7.1'
+    
+    // HTTP Client
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    
+    // JSON Processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0'
+    
+    // Utilities
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.commons:commons-io:1.3.2'
+    implementation 'com.google.guava:guava:32.1.3-jre'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    
+    // Logging
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.temporal:temporal-testing:1.22.3'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'
+    testImplementation 'org.testcontainers:testcontainers:1.19.3'
+    testImplementation 'org.testcontainers:postgresql:1.19.3'
+    testImplementation 'org.testcontainers:localstack:1.19.3'
+    testImplementation 'org.awaitility:awaitility:4.2.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// Custom tasks for running the application
+task runWorker(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.DocumentPipelineWorker'
+    jvmArgs = ['-Xmx2g', '-Xms512m']
+    
+    // Set environment variables for local development
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233',
+        'S3_ENDPOINT': 'http://localhost:9000',
+        'S3_ACCESS_KEY': 'minioadmin',
+        'S3_SECRET_KEY': 'minioadmin',
+        'S3_BUCKET': 'documents',
+        'CHROMADB_URL': 'http://localhost:8010',
+        'SPRING_DATASOURCE_URL': 'jdbc:postgresql://localhost:5433/document_metadata',
+        'SPRING_DATASOURCE_USERNAME': 'docuser',
+        'SPRING_DATASOURCE_PASSWORD': 'docpass',
+        'REDIS_HOST': 'localhost',
+        'REDIS_PORT': '6379',
+        'LLM_SERVICE_URL': 'http://localhost:8081',
+        'USE_MOCK_SERVICES': 'true'
+    ]
+}
+
+task runStarter(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.example.DocumentPipelineStarter'
+    
+    // Default arguments
+    args = [
+        '--csv-file', '../testdata/documents.csv',
+        '--s3-bucket', 'documents',
+        '--vector-db-collection', 'documents',
+        '--embedding-model', 'text-embedding-3-small',
+        '--summary-model', 'gpt-3.5-turbo'
+    ]
+    
+    environment = [
+        'TEMPORAL_SERVICE_HOST': 'localhost',
+        'TEMPORAL_SERVICE_PORT': '7233'
+    ]
+}
+
+// Integration test task
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    shouldRunAfter test
+}
+
+// Build Docker image
+task buildDocker(type: Exec) {
+    commandLine 'docker', 'build', '-t', 'temporal-rag-java:latest', '-f', 'Dockerfile', '.'
+}
+
+// Shadow JAR for standalone execution
+shadowJar {
+    archiveBaseName.set('temporal-rag-pipeline')
+    archiveClassifier.set('')
+    archiveVersion.set(version)
+    zip64 = true
+    
+    manifest {
+        attributes(
+            'Main-Class': 'com.example.DocumentPipelineWorker',
+            'Implementation-Title': 'Temporal RAG Pipeline',
+            'Implementation-Version': version
+        )
+    }
+    
+    mergeServiceFiles()
+}
+
+// Application plugin configuration
+application {
+    mainClass = 'com.example.DocumentPipelineWorker'
+}
+
+// Spring Boot configuration
+springBoot {
+    mainClass = 'com.example.DocumentPipelineWorker'
+}
+
+bootJar {
+    enabled = true
+    archiveBaseName = 'temporal-rag-pipeline-spring'
+}
+
+jar {
+    enabled = false
+}

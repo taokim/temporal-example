@@ -1,0 +1,198 @@
+version: '3.8'
+
+services:
+  # Temporal Server
+  temporal:
+    image: temporalio/auto-setup:1.22.4
+    ports:
+      - "7233:7233"
+    environment:
+      - LOG_LEVEL=warn
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgres
+    depends_on:
+      - postgres
+    networks:
+      - temporal-network
+
+  # Temporal UI
+  temporal-ui:
+    image: temporalio/ui:2.21.3
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+
+  # PostgreSQL for Temporal
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - temporal-network
+
+  # MinIO (S3 Compatible Storage)
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ChromaDB (Local Vector Database)
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8010:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+      - ALLOW_RESET=TRUE
+    networks:
+      - temporal-network
+
+  # PostgreSQL for Document Metadata
+  metadata-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: document_metadata
+      POSTGRES_USER: docuser
+      POSTGRES_PASSWORD: docpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - metadata-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - temporal-network
+
+  # Redis (for caching)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - temporal-network
+
+  # Mock LLM Service (for local testing)
+  mock-llm:
+    build:
+      context: ./mock-services/llm-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - MOCK_DELAY_MS=100
+      - LOG_LEVEL=info
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Mock OCR Service
+  mock-ocr:
+    build:
+      context: ./mock-services/ocr
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - MOCK_DELAY_MS=200
+    networks:
+      - temporal-network
+
+  # Document Processing Worker (Go)
+  # Uncomment to run Go worker in container
+  # go-worker:
+  #   build:
+  #     context: ./go
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - TEMPORAL_HOST_URL=temporal:7233
+  #     - S3_ENDPOINT=http://minio:9000
+  #     - VECTOR_DB_URL=http://chromadb:8000
+  #     - METADATA_DB_HOST=metadata-db
+  #     - REDIS_URL=redis:6379
+  #     - LLM_SERVICE_URL=http://mock-llm:8081
+  #     - USE_MOCK_SERVICES=true
+  #   depends_on:
+  #     - temporal
+  #     - minio
+  #     - chromadb
+  #     - metadata-db
+  #     - redis
+  #     - mock-llm
+  #   networks:
+  #     - temporal-network
+
+  # Document Processing Worker (Java)
+  # Uncomment to run Java worker in container
+  # java-worker:
+  #   build:
+  #     context: ./java
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - TEMPORAL_SERVICE_HOST=temporal
+  #     - TEMPORAL_SERVICE_PORT=7233
+  #     - S3_ENDPOINT=http://minio:9000
+  #     - VECTOR_DB_URL=http://chromadb:8000
+  #     - METADATA_DB_HOST=metadata-db
+  #     - REDIS_HOST=redis
+  #     - LLM_SERVICE_URL=http://mock-llm:8081
+  #     - USE_MOCK_SERVICES=true
+  #   depends_on:
+  #     - temporal
+  #     - minio
+  #     - chromadb
+  #     - metadata-db
+  #     - redis
+  #     - mock-llm
+  #   networks:
+  #     - temporal-network
+
+volumes:
+  postgres-data:
+  minio-data:
+  chroma-data:
+  metadata-data:
+  redis-data:
+
+networks:
+  temporal-network:
+    driver: bridge

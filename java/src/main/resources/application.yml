@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: temporal-document-pipeline
+  main:
+    web-application-type: none
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5433/document_metadata
+    username: docuser
+    password: docpass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+# S3 Configuration (MinIO)
+s3:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  region: us-east-1
+
+# ChromaDB Configuration
+chromadb:
+  url: http://localhost:8010
+
+# LLM Service Configuration
+llm:
+  service:
+    url: http://localhost:8081
+  use-mock: true
+
+# Preprocessing Configuration
+preprocessing:
+  chunk-size: 1000
+  chunk-overlap: 200
+  remove-pii: true
+  min-quality-score: 0.7
+
+# Worker Configuration
+temporal:
+  service:
+    target: localhost:7233
+  namespace: default
+  task-queue: document-pipeline-queue
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG
+    io.temporal: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

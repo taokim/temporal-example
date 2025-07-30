@@ -1,0 +1,11 @@
+url,name,type,metadata
+https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf,Technical Specification,pdf,"{""category"":""engineering"",""priority"":""high"",""department"":""R&D""}"
+https://sample-videos.com/doc/Sample-doc-file-100kb.doc,Project Proposal,doc,"{""category"":""business"",""priority"":""medium"",""department"":""Sales""}"
+https://filesamples.com/samples/document/txt/sample3.txt,Meeting Notes,txt,"{""category"":""internal"",""priority"":""low"",""department"":""HR""}"
+https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf,API Documentation,pdf,"{""category"":""technical"",""priority"":""high"",""department"":""Engineering""}"
+file:///tmp/sample-data/contract.pdf,Service Contract,pdf,"{""category"":""legal"",""priority"":""high"",""department"":""Legal""}"
+file:///tmp/sample-data/report.docx,Annual Report 2024,docx,"{""category"":""financial"",""priority"":""high"",""department"":""Finance""}"
+https://filesamples.com/samples/document/docx/sample1.docx,User Manual,docx,"{""category"":""documentation"",""priority"":""medium"",""department"":""Support""}"
+file:///tmp/sample-data/presentation.pptx,Q4 Results,pptx,"{""category"":""presentation"",""priority"":""high"",""department"":""Executive""}"
+https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf,Research Paper,pdf,"{""category"":""research"",""priority"":""medium"",""department"":""R&D""}"
+file:///tmp/sample-data/data.xlsx,Sales Data Q4,xlsx,"{""category"":""data"",""priority"":""high"",""department"":""Sales""}"
