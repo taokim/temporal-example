@@ -7,6 +7,7 @@ This directory contains detailed documentation for the Temporal-based document p
 ### Workflow Orchestration
 - [Workflow Orchestration Comparison](./workflow-orchestration-comparison.md) - Detailed comparison of Temporal, Airflow, LangChain, and other workflow orchestration approaches
 - [Temporal vs Airflow: Scalability Deep Dive](./temporal-vs-airflow-scalability.md) - Real-world scalability comparison and migration strategies
+- [Temporal vs Kafka: Architectural Considerations](./temporal-vs-kafka-architectural-considerations.md) - **NEW** Why complex Kafka flows become anti-patterns and when Temporal excels
 - [Temporal SDK Comparison: Go vs Java vs Python](./temporal-sdk-comparison.md) - Performance benchmarks, use cases, and selection guide
 - [AI Workflow Selection Guide](./ai-workflow-selection-guide.md) - Decision criteria, selection matrix, and use case examples
 - [AI Workflow Evolution](./ai-workflow-evolution.md) - Understanding the evolution from static orchestration to autonomous AI systems
@@ -26,3 +27,4 @@ This directory contains detailed documentation for the Temporal-based document p
 ### For Architects
 - Review all documents to understand the full landscape
 - Pay special attention to the migration strategies in [AI Workflow Evolution](./ai-workflow-evolution.md)
+- **Critical Read**: [Temporal vs Kafka: Architectural Considerations](./temporal-vs-kafka-architectural-considerations.md) for avoiding complex Kafka anti-patterns
