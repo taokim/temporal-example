@@ -1,33 +1,70 @@
-# Documentation
+# Temporal Example Documentation
 
-This directory contains detailed documentation for the Temporal-based document processing and RAG pipeline project.
+This directory contains comprehensive documentation for building production-ready Temporal workflows, with a focus on AI/ML pipelines and resource-optimized execution patterns.
 
-## Contents
+## 📚 Documentation Structure
 
-### Workflow Orchestration
-- [Workflow Orchestration Comparison](./workflow-orchestration-comparison.md) - Detailed comparison of Temporal, Airflow, LangChain, and other workflow orchestration approaches
-- [Temporal vs Airflow: Scalability Deep Dive](./temporal-vs-airflow-scalability.md) - Real-world scalability comparison and migration strategies
-- [Temporal vs Kafka: Architectural Considerations](./temporal-vs-kafka-architectural-considerations.md) - **NEW** Why complex Kafka flows become anti-patterns and when Temporal excels
-- [Temporal SDK Comparison: Go vs Java vs Python](./temporal-sdk-comparison.md) - Performance benchmarks, use cases, and selection guide
-- [AI Workflow Selection Guide](./ai-workflow-selection-guide.md) - Decision criteria, selection matrix, and use case examples
-- [AI Workflow Evolution](./ai-workflow-evolution.md) - Understanding the evolution from static orchestration to autonomous AI systems
-- [Document RAG Pipeline Recommendation](./document-rag-pipeline-recommendation.md) - Specific implementation recommendations for document processing to RAG pipeline
-- [Workflow Implementation Examples](./workflow-implementation-examples.md) - Complete workflow and activity implementations in Java and Go
-- [GPU vs CPU-Bound Job Patterns](./gpu-cpu-bound-job-patterns.md) - **NEW** Resource optimization strategies for ML inference and compute-intensive workloads
+### 🏗️ [Architecture](./architecture/)
+Core architectural patterns and design decisions for Temporal-based systems.
 
-## Quick Links
+- **[AI Pipeline Implementation](./architecture/ai-pipeline-implementation.md)** - Building 5-stage AI pipelines with Temporal
+- **[Workflow Evolution](./architecture/ai-workflow-evolution.md)** - Evolution from basic to advanced workflow patterns
+- **[Workflow Orchestration Comparison](./architecture/workflow-orchestration-comparison.md)** - Comparing different orchestration approaches
+- **[Vector Embeddings Architecture](./architecture/temporal-vector-embeddings.md)** - Temporal for vector embedding generation
 
-### For Decision Makers
-- Start with the [AI Workflow Selection Guide](./ai-workflow-selection-guide.md) to understand which approach fits your needs
-- Review the [Document RAG Pipeline Recommendation](./document-rag-pipeline-recommendation.md) for specific implementation guidance
+### 🔄 [Comparisons](./comparisons/)
+Detailed comparisons between Temporal and other workflow orchestration systems.
 
-### For Developers
-- Check the [Workflow Orchestration Comparison](./workflow-orchestration-comparison.md) for technical details
-- Study the [AI Workflow Evolution](./ai-workflow-evolution.md) to prepare for future changes
-- **Essential**: [GPU vs CPU-Bound Job Patterns](./gpu-cpu-bound-job-patterns.md) for ML and compute workload optimization
+- **[Temporal vs Airflow](./comparisons/temporal-vs-airflow-scalability.md)** - Scalability and architectural differences
+- **[Temporal vs Kafka](./comparisons/temporal-vs-kafka-architectural-considerations.md)** - When to use each system
+- **[SDK Comparison](./comparisons/temporal-sdk-comparison.md)** - Go vs Java vs Python SDK comparison
 
-### For Architects
-- Review all documents to understand the full landscape
-- Pay special attention to the migration strategies in [AI Workflow Evolution](./ai-workflow-evolution.md)
-- **Critical Read**: [Temporal vs Kafka: Architectural Considerations](./temporal-vs-kafka-architectural-considerations.md) for avoiding complex Kafka anti-patterns
-- **Performance Critical**: [GPU vs CPU-Bound Job Patterns](./gpu-cpu-bound-job-patterns.md) for resource allocation and infrastructure planning
+### 📖 [Guides](./guides/)
+Step-by-step guides and best practices for implementing Temporal workflows.
+
+- **[Workflow Selection Guide](./guides/ai-workflow-selection-guide.md)** - Choosing the right workflow pattern
+- **[Resource-Optimized Execution](./guides/resource-optimized-execution-guide.md)** - CPU/GPU/IO task separation
+- **[Document RAG Pipeline](./guides/document-rag-pipeline-recommendation.md)** - Building RAG pipelines with Temporal
+- **[Documentation Guidelines](./guides/DOCUMENTATION_GUIDELINES.md)** - Standards for writing documentation
+
+### 🎯 [Patterns](./patterns/)
+Common patterns and implementation examples for Temporal workflows.
+
+- **[CPU/GPU Bound Job Patterns](./patterns/gpu-cpu-bound-job-patterns.md)** - Patterns for resource-specific activities
+- **[Implementation Examples](./patterns/workflow-implementation-examples.md)** - Real-world workflow examples
+- **[CPU/GPU/IO Implementation Summary](./patterns/cpu-gpu-io-implementation-summary.md)** - Summary of resource optimization patterns
+
+### 🚀 [Quickstart](./quickstart/)
+Quick guides to get started with Temporal in different languages.
+
+- **[Python Implementation Guide](./quickstart/python-workflow-implementation.md)** - Getting started with Python SDK
+
+## 🌐 Language Support
+
+Most documentation is available in both English and Korean:
+- English: `filename.md`
+- Korean: `filename_ko.md`
+
+## 📋 Quick Links
+
+### By Use Case
+- **Building AI Pipelines**: Start with [AI Pipeline Implementation](./architecture/ai-pipeline-implementation.md)
+- **Resource Optimization**: See [Resource-Optimized Execution Guide](./guides/resource-optimized-execution-guide.md)
+- **Choosing Temporal**: Read [Temporal vs Airflow](./comparisons/temporal-vs-airflow-scalability.md) and [Temporal vs Kafka](./comparisons/temporal-vs-kafka-architectural-considerations.md)
+- **Getting Started**: Check language-specific READMEs in `/go`, `/java`, or `/python` directories
+
+### By Technical Level
+- **Beginners**: Start with [Quickstart guides](./quickstart/) and [Workflow Selection Guide](./guides/ai-workflow-selection-guide.md)
+- **Intermediate**: Explore [Patterns](./patterns/) and [Implementation Examples](./patterns/workflow-implementation-examples.md)
+- **Advanced**: Deep dive into [Architecture](./architecture/) and [Comparisons](./comparisons/)
+
+## 🔍 Finding Information
+
+1. **Use Case Based**: If you know what you want to build, start with the guides
+2. **Comparison Based**: If evaluating Temporal, check the comparisons section
+3. **Pattern Based**: If looking for implementation patterns, see the patterns section
+4. **Language Based**: Check language-specific folders for SDK-specific details
+
+## 📝 Contributing
+
+Please follow the [Documentation Guidelines](./guides/DOCUMENTATION_GUIDELINES.md) when contributing to this documentation.

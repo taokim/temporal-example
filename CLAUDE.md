@@ -73,8 +73,6 @@ This is a production-ready Temporal-based document processing pipeline that impl
 
 ### Language Selection Guide
 
-For detailed comparison of Go, Java, and Python SDKs, see [Temporal SDK Comparison](./docs/temporal-sdk-comparison.md).
-
 **Quick Decision Guide:**
 - **Choose Go**: Maximum performance, cloud-native, minimal resources, cost optimization
 - **Choose Java**: Enterprise environment, complex business logic, existing JVM infrastructure
@@ -159,7 +157,7 @@ cd java
 3. **Task Queues**: Named queues that route work to specific worker pools
 4. **Pull Model**: Workers actively poll for tasks (no push overhead)
 
-#### Monitoring Worker Performance
+#### Basic Monitoring
 ```bash
 # Key metrics to watch
 temporal workflow list --query 'WorkflowType="DocumentPipelineWorkflow"'
@@ -167,97 +165,6 @@ temporal task-queue describe --task-queue document-pipeline-queue
 
 # View in Temporal UI
 open http://localhost:8080
-
-# PostgreSQL monitoring
-psql -h localhost -p 5433 -U docuser -d document_metadata
-\x on
-SELECT * FROM pipeline_summary ORDER BY started_at DESC LIMIT 5;
-
-# MinIO monitoring
-open http://localhost:9001  # Login: minioadmin/minioadmin
-```
-
-#### Kubernetes Auto-scaling Configuration
-```yaml
-# temporal-worker-deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: temporal-document-worker
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: temporal-document-worker
-  template:
-    metadata:
-      labels:
-        app: temporal-document-worker
-    spec:
-      containers:
-      - name: worker
-        image: your-registry/document-worker:latest
-        env:
-        - name: TEMPORAL_ADDRESS
-          value: temporal-frontend:7233
-        - name: TASK_QUEUE
-          value: document-processing
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
----
-# temporal-worker-hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: temporal-worker-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: temporal-document-worker
-  minReplicas: 2
-  maxReplicas: 50
-  metrics:
-  - type: Pods
-    pods:
-      metric:
-        name: temporal_activity_schedule_to_start_latency
-      target:
-        type: AverageValue
-        averageValue: "5000"  # 5 seconds
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 60
-      policies:
-      - type: Percent
-        value: 100  # Double workers
-        periodSeconds: 60
-    scaleDown:
-      stabilizationWindowSeconds: 300  # Wait 5 min before scaling down
-```
-
-#### Manual Scaling Commands
-```bash
-# Scale workers manually
-kubectl scale deployment temporal-document-worker --replicas=10
-
-# Check worker status
-kubectl get pods -l app=temporal-document-worker
-kubectl top pods -l app=temporal-document-worker
-
-# View worker logs
-kubectl logs -f deployment/temporal-document-worker
 ```
 
 ## Common Commands
@@ -585,12 +492,6 @@ func DataRetrievalWorkflow(references []string) DataExport {
 }
 ```
 
-## Workflow Orchestration Approaches
+## Additional Documentation
 
-For detailed information about workflow orchestration approaches and selection guidance, see:
-
-- [Workflow Orchestration Comparison](./docs/workflow-orchestration-comparison.md) - Comparison of Temporal, Airflow, LangChain, and other approaches
-- [AI Workflow Selection Guide](./docs/ai-workflow-selection-guide.md) - Decision criteria and selection matrix
-- [AI Workflow Evolution](./docs/ai-workflow-evolution.md) - Evolution from static to autonomous AI systems
-- [Document RAG Pipeline Recommendation](./docs/document-rag-pipeline-recommendation.md) - Specific recommendations for this use case
-- [Workflow Implementation Examples](./docs/workflow-implementation-examples.md) - Complete Java and Go implementations
+For detailed guides on workflow orchestration, language comparisons, deployment strategies, and advanced patterns, see the [documentation directory](./docs/README.md).
